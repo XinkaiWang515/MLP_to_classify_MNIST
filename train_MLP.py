@@ -21,9 +21,9 @@ def deriv(kind,x):
     elif kind=='tanh':
         return 1.0 - np.tanh(x) ** 2
 
-DATA_FNAME = 'mnist_traindata.hdf5'
+DATA_FNAME = 'mnist_traindata.hdf5'              # train data
 test_data = 'mnist_testdata.hdf5'
-save_file = 'xinkai_hw3p2.hdf5'
+save_file = 'xinkai_hw3p2.hdf5'                # model save path
 
 # f = h5py.File(DATA_FNAME,'r')
 # f.visit(print)
@@ -36,8 +36,8 @@ with h5py.File(test_data,'r') as hf:
     x_test = hf['xdata'][:]
     y_test = hf['ydata'][:]
 
-# epoch = 50
-# minibatch = 500
+        # This project uses epoch = 50, minibatch = 500
+
 def MLP_backprop_training(actF_category,eta,epoch,minibatch):
     x_train = xdata[:50000]
     x_val = xdata[50000:]
@@ -84,6 +84,9 @@ def MLP_backprop_training(actF_category,eta,epoch,minibatch):
             #     delta2[idx] = (np.transpose(W3)@delta3[idx])*der_a2
             #     delta1[idx] = (np.transpose(W2)@delta2[idx])*der_a1
 
+
+            # Forward training
+
             out = np.zeros((minibatch,W3.shape[0]))
             S1 = x_train[n*minibatch:(n+1)*minibatch]@W1.T + np.tile(b1,(minibatch,1))
             a1 = activation(actF_category,S1)
@@ -95,7 +98,8 @@ def MLP_backprop_training(actF_category,eta,epoch,minibatch):
             der_a1 = deriv(actF_category,S1)
             der_a2 = deriv(actF_category,S2)
 
-            # print(np.amax(out))
+            # Backpropagation
+
             delta3 = out - y_train[n*minibatch:(n+1)*minibatch]
             delta2 = (delta3@W3)*der_a2
             delta1 = (delta2@W2)*der_a1
@@ -107,12 +111,16 @@ def MLP_backprop_training(actF_category,eta,epoch,minibatch):
             b2 -= eta*np.mean(delta2,axis=0)
             b1 -= eta*np.mean(delta1,axis=0)
 
+        # Compute training accuracy
+
         S = activation(actF_category,(activation(actF_category,(x_train@W1.T + np.tile(b1,(y_train.shape[0],1))))@W2.T + np.tile(b2,(y_train.shape[0],1))))@W3.T + np.tile(b3,(y_train.shape[0],1))
         tr_out = np.zeros_like(y_train)
         for i in range(x_train.shape[0]):
             tr_out[i] = softmax(S[i])
         tr_correct = np.sum(np.where(np.argmax(tr_out,axis=1)==np.argmax(y_train,axis=1),1,0))
         accu_train.append(tr_correct/y_train.shape[0])
+
+        # Compute validation accuracy
 
         v_S = activation(actF_category,(activation(actF_category,x_val@W1.T + np.tile(b1,(y_val.shape[0],1)))@W2.T + np.tile(b2,(y_val.shape[0],1))))@W3.T + np.tile(b3,(y_val.shape[0],1))
         v_out = np.zeros_like(y_val)
@@ -126,8 +134,8 @@ def MLP_backprop_training(actF_category,eta,epoch,minibatch):
 
 if __name__=='__main__':
     max_accu = 0
-    for actFCN in ['relu','tanh']:
-        for eta in [0.02,0.1,0.5]:
+    for actFCN in ['relu','tanh']:          # 2 active function to choose
+        for eta in [0.02,0.1,0.5]:          # 3 learning rates to choose
             start = time.time()
             accu_train,accu_val,epoch,minibatch = MLP_backprop_training(actFCN,eta,50,500)
             if accu_val[-1]>max_accu:
@@ -136,6 +144,8 @@ if __name__=='__main__':
                 lr = eta
             end = time.time()
             print('time per epoch', end - start)
+
+            # plot learning curve
             plt.title('activation function: %s,learning rate: %.2f'%(actFCN,eta))
             plt.plot(accu_train,label='training')
             plt.plot(accu_val,label='validation')
@@ -192,6 +202,8 @@ if __name__=='__main__':
         outfile.create_dataset('w1', data=W1)
         outfile.create_dataset('w2', data=W2)
         outfile.create_dataset('w3', data=W3)
+
+    # compute test accuracy with parameters obtain best validation accuracy
 
     test_S = activation(actF, (
                 activation(actF, x_test @ W1.T + np.tile(b1, (y_test.shape[0], 1))) @ W2.T + np.tile(b2, (
