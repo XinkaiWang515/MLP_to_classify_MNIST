@@ -62,29 +62,6 @@ def MLP_backprop_training(actF_category,eta,epoch,minibatch):
 
         for n in range(int(x_train.shape[0]/minibatch)):
 
-            # delta3 = np.zeros((minibatch,W3.shape[0]))
-            # delta2 = np.zeros((minibatch,W2.shape[0]))
-            # delta1 = np.zeros((minibatch,W1.shape[0]))
-            # a1 = np.zeros_like(delta1)
-            # a2 = np.zeros_like(delta2)
-            #
-            # for idx,img in enumerate(x_train[n*minibatch:(n+1)*minibatch]):
-            #     S1 = W1 @ img + b1
-            #     a1[idx] = ReLU(S1)
-            #     S2 = W2 @ a1[idx] + b2
-            #     a2[idx] = ReLU(S2)
-            #     S3 = W3 @ a2[idx] + b3
-            #     out = softmax(S3)
-            #
-            #     der_a1 = ReLU_derivative(S1)
-            #     der_a2 = ReLU_derivative(S2)
-            #
-            #     # C = -(y_train[n*minibatch+idx] @ np.log(out))
-            #     delta3[idx] = out - y_train[n*minibatch+idx]
-            #     delta2[idx] = (np.transpose(W3)@delta3[idx])*der_a2
-            #     delta1[idx] = (np.transpose(W2)@delta2[idx])*der_a1
-
-
             # Forward training
 
             out = np.zeros((minibatch,W3.shape[0]))
