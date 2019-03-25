@@ -9,4 +9,4 @@ Optimizer: Stochastic gradient descent with learning rate in [0.02, 0.1, 0.5], a
 Minibatch size: 500.  
 Train the network for 50 epoches. At epoch 20 and 40, learning rate decay by a half.
 
-For outcome, please see report.
+For outcome, please check report.
